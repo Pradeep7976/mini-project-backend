@@ -130,14 +130,6 @@ router.post("/high", async (req, res) => {
 /////////////////////////////          flag user         ////////////////
 router.post("/flaguser", async (req, res) => {
   const pid = req.body.pid;
-  ////////////////////////////////                 flag deletion of user      //////////////////
-  async function deleteaccount() {
-    feedbackscheme.deleteMany({ pid: pid });
-    flagcount.deleteMany({ pid: pid });
-    userschema.deleteMany({ pid: pid });
-    reportprobschema.deleteMany({ pid: pid });
-  }
-  //////////////////////////////////////
 
   const flagdata = await flagcount.findOne({ pid: pid });
   const dat = new flagcount({ pid: pid, flags: 1 });
@@ -171,6 +163,18 @@ router.post("/flaguser", async (req, res) => {
   }
   const uid = data.uid;
   const imgurl = data.imageurl;
+  ////////////////////////////////                 flag deletion of user      //////////////////
+  async function deleteaccount() {
+    try {
+      await feedbackscheme.deleteMany({ pid: pid });
+      await flagcount.deleteMany({ pid: pid });
+      await userschema.deleteMany({ uid: uid });
+      await reportprobschema.deleteMany({ uid: uid });
+    } catch (err) {
+      console.log("Error deleting the data");
+    }
+  }
+  //////////////////////////////////////
   async function getDataFromMongoDB() {
     try {
       const data = await userschema.findOne({ uid: uid });
@@ -183,6 +187,7 @@ router.post("/flaguser", async (req, res) => {
   console.log(email);
   if (final) {
     const ans = deleteaccount();
+    console.log(ans);
   }
   const htmlbody1 =
     "<h2 style=`color:red;`  >You have been flaged for reporting a fake/wrong issue</h2>" +
@@ -204,29 +209,5 @@ router.post("/flaguser", async (req, res) => {
       res.send("Email sent: " + info.response);
     }
   });
-});
-router.get("/flagcount", async (req, res) => {
-  const pid = req.body.pid;
-  const data = await flagcount.findOne({ pid: pid });
-  console.log(data);
-  const dat = new flagcount({ pid: pid, flags: 1 });
-  async function getflagfinal() {
-    if (data == null) {
-      console.log("NULL");
-      dat.save();
-      return false;
-    } else {
-      await flagcount.updateOne({ pid: pid }, { $inc: { flags: 1 } });
-
-      return data.flags == 3;
-    }
-  }
-  // // console.log(data.flags);
-  const flag = await getflagfinal();
-
-  res.send({ flag: flag });
-});
-router.get("/temp", (req, res) => {
-  res.send("sdfsdf");
 });
 module.exports = router;
