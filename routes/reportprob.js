@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
 });
 /////
 router.get("/totalcount", async (req, res) => {
-  await reportprobschema.find({}).then((result) => {
+  await reportprobschema.find({ status: false }).then((result) => {
     res.send(result.length.toString());
   });
 });

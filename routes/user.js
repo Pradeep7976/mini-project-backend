@@ -16,14 +16,17 @@ app.use(bodyParser.json());
 const regester = require("../models/user");
 const user = require("../models/user");
 const countermodel = require("../models/counter");
+const reportproblem = require("../models/reportproblem");
 
 router.post("/signup", async (req, res) => {
   try {
+    console.log("received");
     const name = req.body.name;
     const phone = req.body.phone;
     const email = req.body.email;
     const address = req.body.address;
     const password = req.body.password;
+    const imageurl = req.body.imageurl;
     const passwordHash = await bcrypt.hash(password, 10);
 
     const User = await user.findOne({ phone });
@@ -42,6 +45,7 @@ router.post("/signup", async (req, res) => {
         email: email,
         address: address,
         password: passwordHash,
+        imageurl: imageurl,
       });
       // res.send(dat);
       dat.save();
@@ -69,6 +73,7 @@ router.post("/login", async (req, res) => {
   console.log(password);
   let uid = 1;
   const User = await user.findOne({ phone: phone1 });
+  console.log(User);
   const Passwordcorrect =
     User === null ? false : await bcrypt.compare(password, User.password);
   if (!(User && Passwordcorrect)) {
@@ -78,7 +83,7 @@ router.post("/login", async (req, res) => {
   } else {
     const phone = User.phone;
     const token = jwt.sign({ phone }, "jwtsecret", { expiresIn: 800 });
-    return res.json({ auth: true, token: token, uid: User.uid.toString() });
+    return res.json({ auth: true, token: token, uid: User.uid });
   }
 });
 //////////////////////////////////////////////           to check if authenticated        ////////////////////////////////////////////////
@@ -102,5 +107,19 @@ const verifyJwt = (req, res, next) => {
 };
 router.get("/isUserAuth", verifyJwt, (req, res) => {
   res.json({ auth: true });
+});
+/////////////////////////         full Details          ////////////////////
+router.post("/details", async (req, res) => {
+  const uid = req.body.uid;
+  const response = await user.findOne({ uid: uid });
+  // res.json({ auth: uid });
+  res.send(response);
+});
+router.post("/reported/count", async (req, res) => {
+  const uid = req.body.uid;
+  const response = await reportproblem.findOne({ uid: uid });
+  // res.json({ auth: uid });
+  if (response == null) res.send("0");
+  else res.send(response.length);
 });
 module.exports = router;

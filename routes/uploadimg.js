@@ -14,11 +14,13 @@ const imagekit = new ImageKit({
 
 router.post("/", upload.single("file"), async (req, res) => {
   try {
+    console.log("received");
     const file = req.file;
     const response = await imagekit.upload({
       file: file.buffer,
       fileName: file.originalname,
     });
+    console.log(response.url);
     res.json({ url: response.url });
   } catch (error) {
     console.error(error);

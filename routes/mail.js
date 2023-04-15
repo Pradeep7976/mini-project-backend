@@ -103,8 +103,9 @@ router.post("/high", async (req, res) => {
       </tr>
     </thead>
     <tbody>
-      ${data.map((item) => {
-        return `
+      ${data
+        .map((item) => {
+          return `
         <div>
         <tr>
         <td style="border: 1px solid black;">sdfsdf</td>
@@ -113,7 +114,8 @@ router.post("/high", async (req, res) => {
         <td  style="border: 1px solid black;">sdfsdf</td>
         </tr>
         </div>`;
-      })}
+        })
+        .join("")}
     </tbody>
   </table>`,
   };

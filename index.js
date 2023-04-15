@@ -6,13 +6,19 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-);
 app.use(cors());
+// app.use(cors({ origin: true, credentials: true }));
+// app.use(
+//   bodyParser.urlencoded({
+//     extended: true,
+//   })
+// );
+app.use((_req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
 
+  next();
+});
 app.use(bodyParser.json());
 mongoose
   .connect(
@@ -37,6 +43,9 @@ app.use("/api/user", regester);
 app.use("/api/reportprob", reportprob);
 app.use("/api/mail", mail);
 app.use("/api/dept", dept);
+app.use("/", (req, res) => {
+  res.send("OK");
+});
 app.listen(7000, () => {
   console.log("Server listening on port 7000");
 });
