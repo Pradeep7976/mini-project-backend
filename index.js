@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-
+require("dotenv").config();
 const app = express();
 app.use(cors());
 // app.use(cors({ origin: true, credentials: true }));
@@ -46,6 +46,6 @@ app.use("/api/dept", dept);
 app.use("/", (req, res) => {
   res.send("OK");
 });
-app.listen(7000, () => {
+app.listen(7000|| process.env.PORT, () => {
   console.log("Server listening on port 7000");
 });
