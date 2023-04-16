@@ -43,9 +43,9 @@ app.use("/api/user", regester);
 app.use("/api/reportprob", reportprob);
 app.use("/api/mail", mail);
 app.use("/api/dept", dept);
-app.use("/", (req, res) => {
-  res.send("OK");
-});
+// app.use("/", (req, res) => {
+//   res.send("OK from root");
+// });
 app.listen(7000|| process.env.PORT, () => {
   console.log("Server listening on port 7000");
 });

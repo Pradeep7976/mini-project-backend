@@ -1,6 +1,11 @@
 var express = require("express");
 var router = express.Router();
-
+//
+const ImageKit = require("imagekit");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+//
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
@@ -18,6 +23,11 @@ const user = require("../models/user");
 const countermodel = require("../models/counter");
 const newproblem = require("../models/problem");
 
+const imagekit = new ImageKit({
+  publicKey: "public_54egNKOJriAp5xKY7+e6SMh+mGo=",
+  privateKey: "private_E4UmIvFXD/XV2EIlSIrTwjIgRCA=",
+  urlEndpoint: "https://imagekit.io/dashboard/media-library/L01pbmlfcHJvamVjdA",
+});
 //
 
 const reportprobschema = require("../models/reportproblem");
@@ -180,4 +190,71 @@ router.post("/newproblem", async (req, res) => {
       res.send(result);
     });
 });
+
+///////////////////////////             temp UPLOADER             //////////////////////////////
+router.post("/temp", upload.single("file"), async (req, res) => {
+  try {
+    console.log("received");
+    const file = req.file;
+    const data = JSON.parse(req.body.data);
+    console.log(data.name);
+    console.log(data.department);
+    const response = await imagekit.upload({
+      file: file.buffer,
+      fileName: file.originalname,
+    });
+    console.log(response.url);
+    const imageurl = response.url;
+    let id;
+    await countermodel.updateOne({ id: "autoval" }, { $inc: { pid: 1 } });
+    await countermodel.find({ id: "autoval" }).then((result) => {
+      const data = result[0].pid;
+      id = result[0].pid;
+    });
+    const dat = new newproblem({
+      pid: id,
+      uid: data.uid,
+      name: data.name,
+      description: data.description,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      formatdate: new Date(),
+      imageurl: data.imageurl,
+      status: false,
+      department: data.department,
+      location: {
+        type: "Point",
+        coordinates: [data.longitude, data.latitude],
+      },
+    });
+    console.log(dat);
+    console.log(imageurl);
+    const results = await problem
+      .find({
+        location: {
+          $near: {
+            $geometry: {
+              type: "point",
+              coordinates: [data.longitude, data.latitude],
+            },
+            $maxDistance: 3000,
+          },
+        },
+      })
+      .then((result) => {
+        if (result.length == 0) {
+          res.json({ done: true });
+          console.log("OK sent");
+          dat.save();
+        } else {
+          console.log("already present bro");
+          res.json({ done: false });
+        }
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error uploading file" });
+  }
+});
+
 module.exports = router;

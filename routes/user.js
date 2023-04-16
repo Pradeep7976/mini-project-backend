@@ -4,6 +4,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+//
+const ImageKit = require("imagekit");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+//
 const app = express();
 app.use(
   bodyParser.urlencoded({
@@ -18,17 +24,31 @@ const user = require("../models/user");
 const countermodel = require("../models/counter");
 const reportproblem = require("../models/reportproblem");
 
-router.post("/signup", async (req, res) => {
+const imagekit = new ImageKit({
+  publicKey: "public_54egNKOJriAp5xKY7+e6SMh+mGo=",
+  privateKey: "private_E4UmIvFXD/XV2EIlSIrTwjIgRCA=",
+  urlEndpoint: "https://imagekit.io/dashboard/media-library/L01pbmlfcHJvamVjdA",
+});
+router.post("/signup", upload.single("file"), async (req, res) => {
   try {
     console.log("received");
-    const name = req.body.name;
-    const phone = req.body.phone;
-    const email = req.body.email;
-    const address = req.body.address;
-    const password = req.body.password;
-    const imageurl = req.body.imageurl;
+    const file = req.file;
+    const data = JSON.parse(req.body.data);
+    const name = data.name;
+    const phone = data.phone;
+    const email = data.email;
+    const city = data.city;
+    const address = data.address;
+    const password = data.password;
+    const age = data.age;
     const passwordHash = await bcrypt.hash(password, 10);
-
+    const response = await imagekit.upload({
+      file: file.buffer,
+      fileName: file.originalname,
+    });
+    console.log(response.url);
+    const imageurl = response.url;
+    ///////////////////////////////////
     const User = await user.findOne({ phone });
     // res.send(User === null);
     if (User === null) {
@@ -39,26 +59,29 @@ router.post("/signup", async (req, res) => {
         uid = result[0].seq;
       });
       const dat = new user({
-        name: name,
         uid: uid,
+        name: name,
+        age: age,
         phone: phone,
         email: email,
         address: address,
+        city: city,
         password: passwordHash,
         imageurl: imageurl,
       });
       // res.send(dat);
+      console.log(dat);
       dat.save();
       const token = jwt.sign({ email }, "jwtsecret", { expiresIn: 800 });
       console.log(token);
-      return res.json({ auth: true, token: token });
+      return res.json({ auth: true, token: token, url: response.url });
     } else {
       console.log("already present bro");
       res.send({ auth: false });
     }
   } catch (error) {
-    console.log(error);
-    res.send("err");
+    console.error(error);
+    res.status(500).json({ message: "Error uploading file" });
   }
 });
 router.get("/count", async (req, res) => {
@@ -122,4 +145,5 @@ router.post("/reported/count", async (req, res) => {
   if (response == null) res.send("0");
   else res.send(response.length);
 });
+
 module.exports = router;

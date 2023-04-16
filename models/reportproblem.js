@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const newSchema = mongoose.Schema({
   pid: { type: Number, required: true },
   uid: { type: Number, required: true },
+  
   description: { type: String, required: false },
   locx: { type: Number, required: true },
   locy: { type: Number, required: true },

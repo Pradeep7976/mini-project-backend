@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 const dataSchema = new Schema({
   pid: { type: Number, required: true },
   uid: { type: Number, required: true },
+  name: { type: String, required: true },
   description: { type: String, required: false },
   latitude: { type: Number, required: true },
   longitude: { type: Number, required: true },
@@ -19,4 +20,4 @@ const dataSchema = new Schema({
 
 dataSchema.index({ location: "2dsphere" });
 
-module.exports = mongoose.model("newproblem", dataSchema);
+module.exports = mongoose.model("problem", dataSchema);

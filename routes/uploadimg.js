@@ -14,7 +14,7 @@ const imagekit = new ImageKit({
 
 router.post("/", upload.single("file"), async (req, res) => {
   try {
-    console.log("received");
+    console.log("received upload");
     const file = req.file;
     const response = await imagekit.upload({
       file: file.buffer,

@@ -23,6 +23,7 @@ const countermodel = require("../models/counter");
 
 const reportprobschema = require("../models/reportproblem");
 const dept = require("../models/dept");
+const problem = require("../models/problem");
 const feedbackschema = require("../models/feedback");
 //
 
@@ -32,8 +33,25 @@ router.get("/", async (req, res) => {
 
 //to get the issues for a particular dept
 router.get("/probs/:dept", async (req, res) => {
-  reportprobschema.find({ department: req.params.dept }).then((result) => {
-    res.send(result);
+  problem.find({ department: req.params.dept }).then((result) => {
+    let response = result;
+    const arr = [];
+    response.map((ele) => {
+      const dat = {
+        pid: ele.pid,
+        uid: ele.uid,
+        name: ele.name,
+        description: ele.description,
+        latitude: ele.latitude,
+        longitude: ele.longitude,
+        formatdate: ele.formatdate,
+        status: ele.status,
+        department: ele.department,
+      };
+      arr.push(dat);
+    });
+    console.log(arr);
+    res.send(arr);
   });
 });
 // to set to solve
@@ -49,10 +67,12 @@ router.get("/solve/:pid", async (req, res) => {
 // to add dept
 router.post("/adddept", async (req, res) => {
   const did = req.body.did;
+  const name = req.body.name;
   const password = req.body.password;
   const passwordHash = await bcrypt.hash(password, 10);
   const dat = new dept({
     did: did,
+    name: name,
     password: passwordHash,
   });
   // res.send(dat);
@@ -78,6 +98,17 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ did }, "jwtsecretdept", { expiresIn: 800 });
     return res.json({ auth: true, token: token, did: User.did });
   }
+});
+// get dept name
+router.post("/getdeptname", async (req, res) => {
+  dept.findOne({ did: req.body.did }).then((result) => {
+    if (result) {
+      res.send(result.name);
+    } else {
+      console.log(result);
+    }
+  });
+  res.send;
 });
 
 //is user Auth
