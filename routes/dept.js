@@ -50,7 +50,7 @@ router.get("/probs/:dept", async (req, res) => {
       };
       arr.push(dat);
     });
-    console.log(arr);
+    // console.log(arr);
     res.send(arr);
   });
 });
@@ -85,9 +85,12 @@ router.post("/adddept", async (req, res) => {
 
 //login dept
 router.post("/login", async (req, res) => {
-  const did = req.body.phone;
+  const depart = req.body.depart;
   const password = req.body.password;
-  const User = await user.findOne({ did: did });
+  console.log(depart);
+  console.log(password);
+  const User = await dept.findOne({ name: depart });
+  console.log(User);
   const Passwordcorrect =
     User === null ? false : await bcrypt.compare(password, User.password);
   if (!(User && Passwordcorrect)) {
@@ -119,7 +122,7 @@ const verifyJwt = (req, res, next) => {
   if (!token) {
     res.send("Sorry bro no token");
   } else {
-    jwt.verify(token, Secret, (err, decoded) => {
+    jwt.verify(token, "jwtsecretdept", (err, decoded) => {
       if (err) {
         res.json({ auth: false, message: "U fail to auth bro " });
         console.log("notauthorised");

@@ -66,7 +66,7 @@ router.post("/", async (req, res) => {
 });
 /////
 router.get("/totalcount", async (req, res) => {
-  await reportprobschema.find({ status: false }).then((result) => {
+  await problem.find({ status: false }).then((result) => {
     res.send(result.length.toString());
   });
 });
@@ -74,7 +74,7 @@ router.get("/totalcount", async (req, res) => {
 /////
 
 router.get("/solvedcount", async (req, res) => {
-  await reportprobschema.find({ status: true }).then((result) => {
+  await problem.find({ status: true }).then((result) => {
     res.send(result.length.toString());
   });
 });
@@ -156,7 +156,7 @@ router.get("/problems/:dept", async (req, res) => {
         };
         arr.push(dat);
       });
-      console.log(arr);
+      // console.log(arr);
       res.send(arr);
     });
 });
