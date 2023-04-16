@@ -14,12 +14,11 @@ app.use(cors());
 
 app.use(bodyParser.json());
 const regester = require("../models/user");
-const user = require("../models/user");
 const countermodel = require("../models/counter");
 
 //
 
-const reportprobschema = require("../models/reportproblem");
+const problem = require("../models/problem");
 const userschema = require("../models/user");
 const flagcount = require("../models/flagcount");
 const feedbackscheme = require("../models/feedback");
@@ -39,21 +38,37 @@ const transporter = nodemailer.createTransport({
 router.post("/", async (req, res) => {
   const dati = {
     pid: req.body.pid,
-    email: req.body.email,
+    uid: req.body.uid,
   };
+  console.log(dati);
+  async function getuser() {
+    try {
+      const ans = await userschema.findOne({ uid: dati.uid });
+      return ans;
+    } catch (err) {
+      console.log("feting user error");
+    }
+  }
   async function getDataFromMongoDB() {
     try {
-      const data = await reportprobschema.find({ pid: dati.pid });
+      const data = await problem.find({ pid: dati.pid });
       return data;
     } catch (error) {
       console.log(error);
     }
   }
+  const user1 = await getuser();
+  let mailid = "gta5zx10r1@gmail.com";
+  console.log("user1" + user1);
+  if (user1 != null) {
+    mailid = user1.email;
+    console.log("Email " + user1.email);
+  }
   const data = await getDataFromMongoDB();
   console.log(data);
   const mailOptions = {
     from: "miniproject7976@gmail.com",
-    to: dati.email,
+    to: mailid,
     subject: "Issue Received",
     html:
       "<h4>Your complaint is successfully registered \n We will try our best to solve the problem as soon as possible Final</h4>" +
@@ -70,7 +85,7 @@ router.post("/", async (req, res) => {
     if (error) {
       res.send(error);
     } else {
-      console.log(mailOptions.text);
+      console.log(mailOptions.html);
       res.send("Email sent: " + info.response);
     }
   });
@@ -151,7 +166,7 @@ router.post("/flaguser", async (req, res) => {
   async function getUid() {
     try {
       console.log("sdfsdfsdfsdf");
-      const data = await reportprobschema.findOne({ pid: pid });
+      const data = await problem.findOne({ pid: pid });
       return data;
     } catch (error) {
       console.error();
@@ -165,6 +180,7 @@ router.post("/flaguser", async (req, res) => {
   }
   const uid = data.uid;
   const imgurl = data.imageurl;
+
   ////////////////////////////////                 flag deletion of user      //////////////////
   async function deleteaccount() {
     try {
@@ -193,10 +209,10 @@ router.post("/flaguser", async (req, res) => {
   }
   const htmlbody1 =
     "<h2 style=`color:red;`  >You have been flaged for reporting a fake/wrong issue</h2>" +
-    `<img src=${imgurl} width="355rem" />`;
+    `<img src=${imgurl.toString()} width="355rem" />`;
   const htmlbody2 =
     "<h2 style=`color:red;`  >You have been flaged for reporting a fake/wrong your account has been deleted issue</h2>" +
-    `<img src=${imgurl} width="355rem" />`;
+    `<img src=${imgurl.toString()} width="355rem" />`;
   const mailOptions = {
     from: "miniproject7976@gmail.com",
     to: email,

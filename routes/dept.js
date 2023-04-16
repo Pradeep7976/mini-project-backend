@@ -56,10 +56,11 @@ router.get("/probs/:dept", async (req, res) => {
 });
 // to set to solve
 router.get("/solve/:pid", async (req, res) => {
-  reportprobschema
+  console.log("sdf");
+  problem
     .updateOne({ pid: req.params.pid }, { $set: { status: true } })
     .then(() => {
-      reportprobschema.find({ pid: req.params.pid }).then((result) => {
+      problem.find({ pid: req.params.pid }).then((result) => {
         res.send(result);
       });
     });
@@ -150,8 +151,10 @@ router.post("/flag", (req, res) => {
   try {
     const pid = req.body.pid;
     let uid;
-    reportprobschema.find({ pid: pid }).then((result) => {
+    problem.find({ pid: pid }).then((result) => {
       uid = result[0].uid;
+      console.log(uid);
+      axios.post("http://localhost:7000/api/mail/flaguser", { pid: pid });
       res.json({ uid: uid });
     });
   } catch (error) {

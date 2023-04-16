@@ -68,7 +68,7 @@ router.post("/signup", upload.single("file"), async (req, res) => {
         city: city,
         password: passwordHash,
         imageurl: imageurl,
-      });
+      }); 
       // res.send(dat);
       console.log(dat);
       dat.save();

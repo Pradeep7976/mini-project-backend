@@ -79,11 +79,12 @@ router.get("/solvedcount", async (req, res) => {
   });
 });
 
-//////////////////////////////////////////             to get full details of a problem
+//////////////////////////////////////////             to get date elapsed of a problem
 
 router.get("/reported/:pid", async (req, res) => {
   const pid = req.params.pid;
-  reportprobschema.findOne({ pid: pid }).then((result) => {
+  console.log(pid);
+  problem.findOne({ pid: pid }).then((result) => {
     if (result == null) {
       res.send(null);
       return;
@@ -98,17 +99,66 @@ router.get("/reported/:pid", async (req, res) => {
     res.send({ data: result, timeelapsed: daysDiff });
   });
 });
+///////////////////////////////////////////////      count problems
+router.get("/probcount/:uid", async (req, res) => {
+  const uid = req.params.uid;
+  console.log(uid);
+  problem.find({ uid: uid }).then((result) => {
+    res.json({ count: result.length });
+  });
+});
+////////////////////////////////////////////////            to get full details of a problem
+router.get("/details/:pid", async (req, res) => {
+  problem.findOne({ pid: req.params.pid }).then((result) => {
+    let response = result;
+    const arr = [];
 
+    const dat = {
+      pid: response.pid,
+      uid: response.uid,
+      name: response.name,
+      description: response.description,
+      latitude: response.latitude,
+      longitude: response.longitude,
+      formatdate: response.formatdate,
+      status: response.status,
+      imageurl: response.imageurl,
+      department: response.department,
+    };
+    console.log(response);
+    res.send(dat);
+  });
+});
 //////////////////////////////////////////////////////        problems of a department           ////////////////////////////////////////
 
 router.get("/problems/:dept", async (req, res) => {
-  reportprobschema.find({ department: req.params.dept }).then((result) => {
-    if (result == null) {
-      res.send(null);
-      return;
-    }
-    res.send(result);
-  });
+  console.log(req.params.dept + "sdfsf");
+  problem
+    .find({ department: req.params.dept, status: false })
+    .then((result) => {
+      if (result == null) {
+        res.send(null);
+        return;
+      }
+      const arr = [];
+      result.map((response) => {
+        const dat = {
+          pid: response.pid,
+          uid: response.uid,
+          name: response.name,
+          description: response.description,
+          latitude: response.latitude,
+          longitude: response.longitude,
+          formatdate: response.formatdate,
+          status: response.status,
+          imageurl: response.imageurl,
+          department: response.department,
+        };
+        arr.push(dat);
+      });
+      console.log(arr);
+      res.send(arr);
+    });
 });
 ///////////////////////////////////////////////////          new problem                     ////////////////////////////////////////////
 router.post("/newproblem", async (req, res) => {
@@ -128,7 +178,7 @@ router.post("/newproblem", async (req, res) => {
   //   req.body;
   // const pid = id;
   // formatdate = Date.now;
-  // const query = {
+  // const query = {s
   //   location: {
   //     $near: {
   //       $geometry: {
@@ -219,7 +269,7 @@ router.post("/temp", upload.single("file"), async (req, res) => {
       latitude: data.latitude,
       longitude: data.longitude,
       formatdate: new Date(),
-      imageurl: data.imageurl,
+      imageurl: imageurl,
       status: false,
       department: data.department,
       location: {
@@ -229,6 +279,10 @@ router.post("/temp", upload.single("file"), async (req, res) => {
     });
     console.log(dat);
     console.log(imageurl);
+    dat.save();
+    axios.post("http://localhost:7000/api/mail/", { pid: id, uid: data.uid });
+    res.json({ done: true });
+    return;
     const results = await problem
       .find({
         location: {
@@ -237,15 +291,16 @@ router.post("/temp", upload.single("file"), async (req, res) => {
               type: "point",
               coordinates: [data.longitude, data.latitude],
             },
-            $maxDistance: 3000,
+            $maxDistance: 10,
           },
         },
       })
       .then((result) => {
+        console.log(result);
         if (result.length == 0) {
+          dat.save();
           res.json({ done: true });
           console.log("OK sent");
-          dat.save();
         } else {
           console.log("already present bro");
           res.json({ done: false });
