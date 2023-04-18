@@ -193,7 +193,7 @@ router.post("/flaguser", async (req, res) => {
       await feedbackscheme.deleteMany({ pid: pid });
       await flagcount.deleteMany({ pid: pid });
       await userschema.deleteMany({ uid: uid });
-      await reportprobschema.deleteMany({ uid: uid });
+      await problem.deleteMany({ uid: uid });
     } catch (err) {
       console.log("Error deleting the data");
     }
