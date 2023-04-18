@@ -117,7 +117,7 @@ const verifyJwt = (req, res, next) => {
   if (!token) {
     res.send("Sorry bro no token");
   } else {
-    jwt.verify(token, Secret, (err, decoded) => {
+    jwt.verify(token, "jwtsecret", (err, decoded) => {
       if (err) {
         res.json({ auth: false, message: "U fail to auth bro " });
         console.log("notauthorised");

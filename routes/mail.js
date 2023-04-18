@@ -213,7 +213,7 @@ router.post("/flaguser", async (req, res) => {
     const ans = deleteaccount();
     console.log(ans);
   } else {
-    problem.deleteOne({ pid: pid });
+    await problem.deleteOne({ pid: pid });
   }
   const htmlbody1 =
     "<h2 style=`color:red;`  >You have been flaged for reporting a fake/wrong issue</h2>" +
