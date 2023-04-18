@@ -23,6 +23,7 @@ const regester = require("../models/user");
 const user = require("../models/user");
 const countermodel = require("../models/counter");
 const reportproblem = require("../models/reportproblem");
+const problem = require("../models/problem");
 
 const imagekit = new ImageKit({
   publicKey: "public_54egNKOJriAp5xKY7+e6SMh+mGo=",
@@ -68,7 +69,7 @@ router.post("/signup", upload.single("file"), async (req, res) => {
         city: city,
         password: passwordHash,
         imageurl: imageurl,
-      }); 
+      });
       // res.send(dat);
       console.log(dat);
       dat.save();
@@ -140,10 +141,38 @@ router.post("/details", async (req, res) => {
 });
 router.post("/reported/count", async (req, res) => {
   const uid = req.body.uid;
-  const response = await reportproblem.findOne({ uid: uid });
-  // res.json({ auth: uid });
-  if (response == null) res.send("0");
-  else res.send(response.length);
+  console.log(uid);
+  // const response = await problem.findOne({ uid: uid });
+  // // res.json({ auth: uid });
+  // if (response == null) res.send("0");
+  // else res.send(response.length);
+  const response = await problem.find({ uid: uid });
+  res.send({ ans: response.length });
 });
-
+router.get("/userdetails/:uid", (req, res) => {
+  problem.find({ uid: req.params.uid }).then((result) => {
+    if (result == null) {
+      res.send(null);
+      return;
+    }
+    const arr = [];
+    result.map((response) => {
+      const dat = {
+        pid: response.pid,
+        uid: response.uid,
+        name: response.name,
+        description: response.description,
+        latitude: response.latitude,
+        longitude: response.longitude,
+        formatdate: response.formatdate,
+        status: response.status,
+        imageurl: response.imageurl,
+        department: response.department,
+      };
+      arr.push(dat);
+    });
+    // console.log(arr);
+    res.send(arr);
+  });
+});
 module.exports = router;

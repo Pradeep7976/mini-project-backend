@@ -66,8 +66,8 @@ router.post("/", async (req, res) => {
 });
 /////
 router.get("/totalcount", async (req, res) => {
-  await problem.find({ status: false }).then((result) => {
-    res.send(result.length.toString());
+  await problem.find().then((result) => {
+    res.json({ ans: result.length });
   });
 });
 
@@ -75,7 +75,7 @@ router.get("/totalcount", async (req, res) => {
 
 router.get("/solvedcount", async (req, res) => {
   await problem.find({ status: true }).then((result) => {
-    res.send(result.length.toString());
+    res.json({ ans: result.length });
   });
 });
 
@@ -162,51 +162,12 @@ router.get("/problems/:dept", async (req, res) => {
 });
 ///////////////////////////////////////////////////          new problem                     ////////////////////////////////////////////
 router.post("/newproblem", async (req, res) => {
-  // Check if the new data location is within 10 m
-  // If not, store the data in the database
-  // Otherwise, do not store the data and send a response with an error message
-  // You can use a geospatial query to check the distance between the new data location and the existing data locations
-
   let id;
   await countermodel.updateOne({ id: "autoval" }, { $inc: { pid: 1 } });
   await countermodel.find({ id: "autoval" }).then((result) => {
     const data = result[0].pid;
     id = result[0].pid;
   });
-  // const collection = req.app.locals.collection;
-  // const { latitude, longitude, uid, description, imageurl, department } =
-  //   req.body;
-  // const pid = id;
-  // formatdate = Date.now;
-  // const query = {s
-  //   location: {
-  //     $near: {
-  //       $geometry: {
-  //         type: "Point",
-  //         coordinates: [longitude, latitude],
-  //       },
-  //       $maxDistance: 10,
-  //     },
-  //   },
-  // };
-  // newproblem.findOne({}).then((result) => {
-  //   if (result != null) {
-  //     res.status(400).json({ message: "Location already exists" });
-  //     return;
-  //   }
-  //   const dat = new newproblem({
-  //     pid: pid,
-  //     uid: uid,
-  //     description: description,
-  //     latitude: latitude,
-  //     longitude: longitude,
-  //     formatdate: formatdate,
-  //     imageurl: imageurl,
-  //     department: department,
-  //     location: { type: "Point", coordinates: [longitude, latitude] },
-  //   });
-  //   dat.save();
-  // });
   console.log("IN");
   const dat = new newproblem({
     pid: id,
@@ -277,12 +238,13 @@ router.post("/temp", upload.single("file"), async (req, res) => {
         coordinates: [data.longitude, data.latitude],
       },
     });
+    // dat.save();
+    // axios.post("http://localhost:7000/api/mail/", {
+    //   pid: id,
+    //   uid: data.uid,
+    // });
     console.log(dat);
-    console.log(imageurl);
-    dat.save();
-    axios.post("http://localhost:7000/api/mail/", { pid: id, uid: data.uid });
-    res.json({ done: true });
-    return;
+    // res.json({ done: true });
     const results = await problem
       .find({
         location: {
@@ -291,18 +253,19 @@ router.post("/temp", upload.single("file"), async (req, res) => {
               type: "point",
               coordinates: [data.longitude, data.latitude],
             },
-            $maxDistance: 10,
+            $maxDistance: 100,
           },
         },
       })
-      .then((result) => {
-        console.log(result);
-        if (result.length == 0) {
+      .then((resu) => {
+        if (resu.length == 0) {
           dat.save();
+          axios.post("http://localhost:7000/api/mail/", {
+            pid: id,
+            uid: data.uid,
+          });
           res.json({ done: true });
-          console.log("OK sent");
         } else {
-          console.log("already present bro");
           res.json({ done: false });
         }
       });
@@ -311,5 +274,25 @@ router.post("/temp", upload.single("file"), async (req, res) => {
     res.status(500).json({ message: "Error uploading file" });
   }
 });
-
+router.post("/map", async (req, res) => {
+  const results = await problem
+    .find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "point",
+            coordinates: [req.body.longitude, req.body.latitude],
+          },
+          $maxDistance: 100,
+        },
+      },
+    })
+    .then((resu) => {
+      if (resu.length == 0) {
+        res.json({ report: true });
+      } else {
+        res.json({ report: false });
+      }
+    });
+});
 module.exports = router;

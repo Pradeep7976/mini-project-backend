@@ -65,6 +65,11 @@ router.post("/", async (req, res) => {
     console.log("Email " + user1.email);
   }
   const data = await getDataFromMongoDB();
+  let imgurl =
+    "https://ik.imagekit.io/aj4rz7nxsa/Mini_project/av5c8336583e291842624_Yp22FJ3dQ.png?updatedAt=1681579723021";
+  if (data.length != 0) {
+    imgurl = data[0].imageurl;
+  }
   console.log(data);
   const mailOptions = {
     from: "miniproject7976@gmail.com",
@@ -75,7 +80,7 @@ router.post("/", async (req, res) => {
       data
         .map((item) => `<p>${item.formatdate.toString().slice(4, 15)}:</p>`)
         .join("") +
-      `<img src=${data[0].imageurl} width="355rem"></img>` +
+      `<img src=${imgurl} width="355rem"></img>` +
       `<P>Issue Submitted on ${data[0].formatdate
         .toString()
         .slice(4, 15)} </p>` +
@@ -85,6 +90,7 @@ router.post("/", async (req, res) => {
     if (error) {
       res.send(error);
     } else {
+      console.log(mailOptions.to);
       console.log(mailOptions.html);
       res.send("Email sent: " + info.response);
     }
