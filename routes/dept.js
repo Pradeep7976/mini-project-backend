@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 const regester = require("../models/user");
 const user = require("../models/user");
 const countermodel = require("../models/counter");
-
+const solved = require("../models/solved");
 //
 
 const reportprobschema = require("../models/reportproblem");
@@ -57,6 +57,7 @@ router.get("/probs/:dept", async (req, res) => {
 // to set to solve
 router.get("/solve/:pid", async (req, res) => {
   console.log("sdf");
+
   problem
     .updateOne({ pid: req.params.pid }, { $set: { status: true } })
     .then(() => {
@@ -64,6 +65,21 @@ router.get("/solve/:pid", async (req, res) => {
         res.send(result);
       });
     });
+});
+//to set solver name
+router.post("/solvename", async (req, res) => {
+  const dat = new solved({
+    pid: req.body.pid,
+    name: req.body.name,
+  });
+  await dat.save();
+  console.log(req.body.name);
+  res.status(200).send(dat);
+});
+router.get("/solvename/:pid", async (req, res) => {
+  const resp = await solved.findOne({ pid: req.params.pid }).then((data) => {
+    res.send(data);
+  });
 });
 // to add dept
 router.post("/adddept", async (req, res) => {

@@ -106,7 +106,7 @@ router.post("/login", async (req, res) => {
     });
   } else {
     const phone = User.phone;
-    const token = jwt.sign({ phone }, "jwtsecret", { expiresIn: 800 });
+    const token = jwt.sign({ phone }, "jwtsecret", { expiresIn: 800000 });
     return res.json({ auth: true, token: token, uid: User.uid });
   }
 });
