@@ -24,6 +24,8 @@ const user = require("../models/user");
 const countermodel = require("../models/counter");
 const reportproblem = require("../models/reportproblem");
 const problem = require("../models/problem");
+const feedback = require("../models/feedback");
+const rating = require("../models/rating");
 
 const imagekit = new ImageKit({
   publicKey: "public_54egNKOJriAp5xKY7+e6SMh+mGo=",
@@ -142,13 +144,39 @@ router.post("/details", async (req, res) => {
 router.post("/reported/count", async (req, res) => {
   const uid = req.body.uid;
   console.log(uid);
-  // const response = await problem.findOne({ uid: uid });
-  // // res.json({ auth: uid });
-  // if (response == null) res.send("0");
-  // else res.send(response.length);
   const response = await problem.find({ uid: uid });
   res.send({ ans: response.length });
 });
+
+///////////////////////////////////                         RATINGS                           ///////////////////////////////////
+router.post("/rating", async (req, res) => {
+  try {
+    const dat = new rating({
+      rating: req.body.rating,
+      feedback: req.body.feedback,
+      uid: req.body.uid,
+    });
+    dat.save();
+    console.log("Saved ");
+    res.send("SAVED").status(200);
+  } catch (e) {
+    res.send("ERROR " + e).status(500);
+  }
+});
+router.get("/rating", async (req, res) => {
+  rating.find().then((dat) => {
+    console.log("sent");
+    res.send(dat);
+  });
+});
+///////////////////////////////////                                                ///////////////////////////////////
+
+router.get("/details/:uid", (req, res) => {
+  user.findOne({ uid: req.params.uid }).then((dat) => {
+    res.send(dat.name);
+  });
+});
+
 router.get("/userdetails/:uid", (req, res) => {
   problem.find({ uid: req.params.uid }).then((result) => {
     if (result == null) {

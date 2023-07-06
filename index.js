@@ -36,6 +36,7 @@ const regester = require("./routes/user");
 const reportprob = require("./routes/reportprob");
 const mail = require("./routes/mail");
 const dept = require("./routes/dept");
+const feedback = require("./models/feedback");
 //////////////////////////////////////////////////////////////////////
 
 app.use("/api/uploadimg", uploadimg);
@@ -43,9 +44,10 @@ app.use("/api/user", regester);
 app.use("/api/reportprob", reportprob);
 app.use("/api/mail", mail);
 app.use("/api/dept", dept);
+app.use("/api/feedback", feedback);
 // app.use("/", (req, res) => {
 //   res.send("OK from root");
 // });
-app.listen(7000|| process.env.PORT, () => {
+app.listen(7000 || process.env.PORT, () => {
   console.log("Server listening on port 7000");
 });

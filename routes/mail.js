@@ -78,7 +78,12 @@ router.post("/", async (req, res) => {
     html:
       "<h4>Your complaint is successfully registered \n We will try our best to solve the problem as soon as possible Final</h4>" +
       data
-        .map((item) => `<p>${item.formatdate.toString().slice(4, 15)}:</p>`)
+        .map(
+          (item) =>
+            `<p>${item.department}</p><p>${item.formatdate
+              .toString()
+              .slice(4, 15)}:</p>`
+        )
         .join("") +
       `<img src=${imgurl} width="355rem"></img>` +
       `<P>Issue Submitted on ${data[0].formatdate
