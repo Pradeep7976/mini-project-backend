@@ -306,4 +306,9 @@ router.post("/solvername", async (req, res) => {
   await dat.save();
   res.send(req.body);
 });
+router.get("/solvername/:pid", async (req, res) => {
+  solved.findOne({ pid: req.params.pid }).then((resp) => {
+    res.send(resp);
+  });
+});
 module.exports = router;
