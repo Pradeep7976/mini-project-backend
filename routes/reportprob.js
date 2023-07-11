@@ -32,6 +32,7 @@ const imagekit = new ImageKit({
 
 const reportprobschema = require("../models/reportproblem");
 const problem = require("../models/problem");
+const solved = require("../models/solved");
 
 //
 router.post("/", async (req, res) => {
@@ -260,7 +261,7 @@ router.post("/temp", upload.single("file"), async (req, res) => {
       .then((resu) => {
         if (resu.length == 0) {
           dat.save();
-          axios.post("http://localhost:7000/api/mail/", {
+          axios.post("https://expensive-hem-elk.cyclic.app/api/mail/", {
             pid: id,
             uid: data.uid,
           });
@@ -294,5 +295,15 @@ router.post("/map", async (req, res) => {
         res.json({ report: false });
       }
     });
+});
+
+//////////////////////////////////////////                        solver                         /////////////////////////////
+router.post("/solvername", async (req, res) => {
+  const dat = new solved({
+    pid: req.body.pid,
+    name: req.body.name,
+  });
+  await dat.save();
+  res.send(req.body);
 });
 module.exports = router;

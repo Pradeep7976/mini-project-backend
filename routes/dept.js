@@ -173,7 +173,9 @@ router.post("/flag", (req, res) => {
     problem.find({ pid: pid }).then((result) => {
       uid = result[0].uid;
       console.log(uid);
-      axios.post("http://localhost:7000/api/mail/flaguser", { pid: pid });
+      axios.post("https://expensive-hem-elk.cyclic.app/api/mail/flaguser", {
+        pid: pid,
+      });
       res.json({ uid: uid });
     });
   } catch (error) {
