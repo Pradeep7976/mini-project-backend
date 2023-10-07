@@ -1,24 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
 app.use(cors());
-// app.use(cors({ origin: true, credentials: true }));
-// app.use(
-//   bodyParser.urlencoded({
-//     extended: true,
-//   })
-// );
-// app.use((_req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Headers", "*");
 
-//   next();
-// });
 app.use(bodyParser.json());
 mongoose
   .connect(

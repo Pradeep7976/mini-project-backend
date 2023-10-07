@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const axios = require("axios");
 app.use(
   bodyParser.urlencoded({
