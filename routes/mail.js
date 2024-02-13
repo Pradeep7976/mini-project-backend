@@ -76,7 +76,7 @@ router.post("/", async (req, res) => {
     to: mailid,
     subject: "Issue Received",
     html:
-      "<h4>Your complaint is successfully registered \n We will try our best to solve the problem as soon as possible Final</h4>" +
+      "<h4>Your complaint is successfully registered \n We will try our best to solve the problem as soon as possible </h4>" +
       data
         .map(
           (item) =>
